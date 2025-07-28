@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { UpdatePostType } from '@mohit-kumar/common-zod-all';
+import { UpdatePostInput } from '@blog-nest/common';
 import Loader from './Loader';
 const key = import.meta.env.VITE_KEY;
 const url=import.meta.env.VITE_BACKEND_URL
 const genAi = new GoogleGenerativeAI(key);
 const model = genAi.getGenerativeModel({
-  model: 'gemini-1.5-pro',
+  model: 'gemini-1.5-pro',  
 });
 
 const Update: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [postInputs, setPostInputs] = useState<UpdatePostType>({ id: -1, title: '', content: '' });
+  const [postInputs, setPostInputs] = useState<UpdatePostInput>({ id: -1, title: '', content: '' });
   const [query, setQuery] = useState('');
   const [blogContent, setBlogContent] = useState('');
   const [isCopied, setIsCopied] = useState(false);

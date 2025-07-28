@@ -1,0 +1,9 @@
+{
+    "name": "@blog-nest/common",
+    "version": "1.0.0",
+    "main": "zod.ts",
+    "scripts": {},
+    "dependencies": {
+      "zod": "^3.23.8"
+    }
+  }

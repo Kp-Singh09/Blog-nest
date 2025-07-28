@@ -1,0 +1,11 @@
+{
+    "name": "blog-nest-monorepo",
+    "private": true,
+    "scripts": {
+      "dev:backend": "pnpm --filter backend dev",
+      "dev:frontend": "pnpm --filter frontend dev"
+    },
+    "devDependencies": {
+      "typescript": "^5.8.3"
+    }
+  }

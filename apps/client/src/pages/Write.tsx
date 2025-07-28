@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreatePostType } from '@mohit-kumar/common-zod-all';
+import { CreatePostInput } from '@blog-nest/common';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -13,7 +13,7 @@ const model = genAi.getGenerativeModel({
 
 const Write = () => {
   const navigate = useNavigate();
-  const [postInputs, setPostInputs] = useState<CreatePostType>({
+  const [postInputs, setPostInputs] = useState<CreatePostInput>({
     title: '',
     content: '',
   });
