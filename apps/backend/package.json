@@ -1,29 +1,24 @@
 {
-  "name": "backend-mongoose",
+  "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node dist/index.js",
-    "build": "tsc -b"
+    "dev": "nodemon --exec \"node --env-file=.env index.js\"",
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "bcryptjs": "^2.4.3",
+    "@clerk/express": "^1.3.10",
+    "axios": "^1.7.3",
+    "body-parser": "^2.0.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.5.1",
-    "typescript": "^5.8.3",
-    "@blog-nest/common": "workspace:*"
+    "dotenv": "^16.6.1",
+    "express": "^5.0.1",
+    "imagekit": "^5.2.0",
+    "mongoose": "8.4.0",
+    "svix": "^1.37.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.10"
+    "nodemon": "^3.1.4"
   }
 }
