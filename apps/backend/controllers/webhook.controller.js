@@ -7,45 +7,70 @@ export const clerkWebHook = async (req, res) => {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    throw new Error("Webhook secret needed!");
+    throw new Error("Clerk Webhook secret needed!");
   }
 
+  // Get the headers
+  const svix_id = req.headers["svix-id"];
+  const svix_timestamp = req.headers["svix-timestamp"];
+  const svix_signature = req.headers["svix-signature"];
+
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return res.status(400).json({ message: "Error occured -- no svix headers" });
+  }
+
+  // Get the body
   const payload = req.body;
-  const headers = req.headers;
+  const body = JSON.stringify(payload);
 
+  // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
+
   let evt;
+
+  // Verify the payload with the headers
   try {
-    evt = wh.verify(payload, headers);
+    evt = wh.verify(body, {
+      "svix-id": svix_id,
+      "svix-timestamp": svix_timestamp,
+      "svix-signature": svix_signature,
+    });
   } catch (err) {
-    res.status(400).json({
-      message: "Webhook verification failed!",
-    });
+    console.error("Error verifying webhook:", err);
+    return res.status(400).json({ message: "Webhook verification failed!" });
   }
 
-  // console.log(evt.data);
+  // Get the event type
+  const { type } = evt;
 
-  if (evt.type === "user.created") {
-    const newUser = new User({
-      clerkUserId: evt.data.id,
-      username: evt.data.username || evt.data.email_addresses[0].email_address,
-      email: evt.data.email_addresses[0].email_address,
-      img: evt.data.profile_img_url,
-    });
+  console.log(`Webhook with an event type of ${type}`);
 
-    await newUser.save();
+  if (type === "user.created") {
+    try {
+      await User.create({
+        clerkUserId: evt.data.id,
+        username: evt.data.username || `${evt.data.first_name} ${evt.data.last_name}`,
+        email: evt.data.email_addresses[0].email_address,
+        img: evt.data.image_url,
+      });
+      console.log("User created in DB:", evt.data.id);
+    } catch (dbError) {
+      console.error("Error creating user in DB:", dbError);
+    }
   }
 
-  if (evt.type === "user.deleted") {
-    const deletedUser = await User.findOneAndDelete({
-      clerkUserId: evt.data.id,
-    });
-
-    await Post.deleteMany({user:deletedUser._id})
-    await Comment.deleteMany({user:deletedUser._id})
+  if (type === "user.deleted") {
+    try {
+      const deletedUser = await User.findOneAndDelete({ clerkUserId: evt.data.id });
+      if (deletedUser) {
+        await Post.deleteMany({ user: deletedUser._id });
+        await Comment.deleteMany({ user: deletedUser._id });
+        console.log("User and their content deleted from DB:", evt.data.id);
+      }
+    } catch (dbError) {
+      console.error("Error deleting user from DB:", dbError);
+    }
   }
 
-  return res.status(200).json({
-    message: "Webhook received",
-  });
+  res.status(200).json({ message: "Webhook processed" });
 };
