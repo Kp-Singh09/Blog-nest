@@ -197,6 +197,13 @@ export const featurePost = async (req, res) => {
   res.status(200).json(updatedPost);
 };
 
+// Add these console.log statements for debugging
+console.log("--- IMAGEKIT ENV CHECK ---");
+console.log("Public Key Loaded:", !!process.env.IK_PUBLIC_KEY);
+console.log("Private Key Loaded:", !!process.env.IK_PRIVATE_KEY);
+console.log("URL Endpoint Loaded:", !!process.env.IK_URL_ENDPOINT);
+console.log("--------------------------");
+
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IK_URL_ENDPOINT,
   publicKey: process.env.IK_PUBLIC_KEY,
