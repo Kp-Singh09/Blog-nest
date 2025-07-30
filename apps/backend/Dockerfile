@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # The command to run your application when the container starts
-CMD [ "node", "--env-file=.env", "index.js" ]
+CMD [ "node", "index.js" ]
