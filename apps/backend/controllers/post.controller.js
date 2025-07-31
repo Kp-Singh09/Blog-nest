@@ -169,47 +169,32 @@ export const deletePost = async (req, res) => {
 };
 
 export const featurePost = async (req, res) => {
-  console.log("==> Attempting to feature a post...");
+  // Correctly destructure sessionClaims from req.auth
+  const { userId, sessionClaims } = req.auth;
+  const { postId } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Not authenticated!" });
+  }
+
+  const role = sessionClaims?.metadata?.role || "user";
+
+  if (role !== "admin") {
+    return res.status(403).json({ message: "You are not authorized to feature posts!" });
+  }
 
   try {
-    const clerkUserId = req.auth.userId;
-    const { postId } = req.body;
-
-    console.log("Request Body for featuring post:", req.body);
-
-    if (!clerkUserId) {
-      return res.status(401).json({ message: "Not authenticated!" });
-    }
-
-    const role = req.auth.sessionClaims?.metadata?.role || "user";
-
-    if (role !== "admin") {
-      return res.status(403).json({ message: "You are not authorized to feature posts!" });
-    }
-
-    if (!postId) {
-      return res.status(400).json({ message: "Post ID is required in the request body." });
-    }
-
     const post = await Post.findById(postId);
 
     if (!post) {
       return res.status(404).json({ message: "Post not found!" });
     }
 
-    const isFeatured = post.isFeatured;
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      { isFeatured: !isFeatured },
-      { new: true }
-    );
-
-    console.log("==> Post feature status updated successfully.");
+    post.isFeatured = !post.isFeatured;
+    const updatedPost = await post.save();
     res.status(200).json(updatedPost);
-
   } catch (error) {
-    console.error("!!! ERROR in featurePost controller:", error);
-    res.status(500).json({ message: "Failed to feature post due to an internal server error." });
+    res.status(500).json({ message: "Failed to feature post." });
   }
 };
 

@@ -24,7 +24,7 @@ const PostMenuActions = ({ post }) => {
   });
 
   if (!isLoaded) {
-    return null; // Don't render until Clerk is ready
+    return null; // Don't render anything until Clerk is ready
   }
 
   const savedPosts = savedPostsData || [];
