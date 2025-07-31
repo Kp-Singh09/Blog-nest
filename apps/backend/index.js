@@ -9,45 +9,24 @@ import cors from "cors";
 
 const app = express();
 
-console.log("Setting up middleware...");
-
-// --- MIDDLEWARE WITH LOGGING ---
-
-app.use((req, res, next) => {
-  console.log(`[1] Request received: ${req.method} ${req.url}`);
-  next();
-});
-
+// 1. CORS Middleware: Handles cross-origin requests first.
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
-app.use((req, res, next) => {
-  console.log("[2] After CORS middleware.");
-  next();
-});
+// 2. Webhook Router: This route requires a raw body for verification, so it must come BEFORE express.json().
+app.use("/webhooks", webhookRouter);
 
+// 3. JSON Body Parser: For all other routes that expect a JSON body.
 app.use(express.json());
 
-app.use((req, res, next) => {
-  console.log("[3] After express.json middleware.");
-  next();
-});
-
+// 4. Clerk Middleware: This runs after the body is parsed and protects subsequent routes.
 app.use(clerkMiddleware());
 
-app.use((req, res, next) => {
-  console.log("[4] After clerkMiddleware.");
-  next();
-});
-
-// --- ROUTERS ---
-app.use("/webhooks", webhookRouter);
+// 5. API Routers: These are now protected by the Clerk middleware.
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
-console.log("Routers have been set up.");
-
-// --- ERROR HANDLER ---
+// --- Global Error Handler ---
 app.use((error, req, res, next) => {
   console.error("!!! Global Error Handler caught an error:", error);
   res.status(error.status || 500).json({
