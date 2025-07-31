@@ -171,45 +171,38 @@ export const deletePost = async (req, res) => {
 
 
 export const featurePost = async (req, res) => {
+  // Correctly destructure sessionClaims from req.auth
+  const { userId, sessionClaims } = req.auth;
+  const { postId } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Not authenticated!" });
+  }
+  
+  // Use the sessionClaims to get the role
+  const role = sessionClaims?.metadata?.role || "user";
+
+  if (role !== "admin") {
+    return res.status(403).json({ message: "You are not authorized to feature posts!" });
+  }
+
   try {
-    // --- DEEP DIVE DEBUGGING LOGS ---
-    console.log("--- START DEBUG: featurePost ---");
-    console.log("Full req.auth object received:", JSON.stringify(req.auth, null, 2));
-
-    const role = req.auth?.sessionClaims?.metadata?.role;
-    console.log("Extracted role from req.auth.sessionClaims.metadata.role:", role);
-    console.log("--- END DEBUG: featurePost ---");
-    // --- END DEEP DIVE ---
-
-    if (!req.auth.userId) {
-      return res.status(401).json({ message: "Not authenticated!" });
-    }
-
-    if (role !== "admin") {
-      return res.status(403).json({ message: "You are not authorized to feature posts!" });
-    }
-
-    const { postId } = req.body;
-    if (!postId) {
-      return res.status(400).json({ message: "Post ID is required." });
-    }
-
     const post = await Post.findById(postId);
+
     if (!post) {
       return res.status(404).json({ message: "Post not found!" });
     }
 
+    // Toggle the isFeatured status
     post.isFeatured = !post.isFeatured;
-    await post.save();
-
-    res.status(200).json(post);
-
+    const updatedPost = await post.save();
+    
+    res.status(200).json(updatedPost);
   } catch (error) {
-    console.error("!!! CRITICAL ERROR in featurePost controller:", error);
+    console.error("Error in featurePost:", error);
     res.status(500).json({ message: "Failed to feature post due to a server error." });
   }
 };
-
 
 // Add these console.log statements for debugging
 console.log("--- IMAGEKIT ENV CHECK ---");
