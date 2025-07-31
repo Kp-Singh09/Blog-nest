@@ -10,7 +10,6 @@ const PostMenuActions = ({ post }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetches the posts saved by the currently logged-in user
   const { data: savedPostsData } = useQuery({
     queryKey: ["savedPosts"],
     queryFn: async () => {
@@ -23,9 +22,9 @@ const PostMenuActions = ({ post }) => {
     },
     enabled: !!user,
   });
-  
+
   if (!isLoaded) {
-    return null; // Don't render until Clerk is ready
+    return null;
   }
 
   const savedPosts = savedPostsData || [];
@@ -33,7 +32,6 @@ const PostMenuActions = ({ post }) => {
   const isSaved = savedPosts.some((p) => p === post._id) || false;
   const isAuthor = user?.id === post?.user?.clerkUserId;
 
-  // --- MUTATION LOGIC RESTORED ---
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = await getToken();
@@ -45,7 +43,7 @@ const PostMenuActions = ({ post }) => {
       toast.success("Post deleted successfully!");
       navigate("/");
     },
-    onError: (error) => toast.error(error.response?.data?.message || "Failed to delete post."),
+    onError: (error) => toast.error(error.response?.data || "Failed to delete post."),
   });
 
   const saveMutation = useMutation({
@@ -64,29 +62,12 @@ const PostMenuActions = ({ post }) => {
     onError: (error) => toast.error(error.response?.data?.message || "Failed to save post."),
   });
 
-  const featureMutation = useMutation({
-    mutationFn: async () => {
-      const token = await getToken();
-      return axios.patch(
-        `${import.meta.env.VITE_API_URL}/posts/feature`,
-        { postId: post._id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", post.slug] });
-      toast.info(post.isFeatured ? "Post unfeatured!" : "Post featured!");
-    },
-    onError: (error) => toast.error(error.response?.data?.message || "Failed to feature post."),
-  });
-
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       deleteMutation.mutate();
     }
   };
-
-  const handleFeature = () => featureMutation.mutate();
+  
   const handleSave = () => {
     if (!user) return navigate("/login");
     saveMutation.mutate();
@@ -101,15 +82,8 @@ const PostMenuActions = ({ post }) => {
         <span>Save this Post</span>
       </div>
 
-      {isAdmin && (
-        <div className="flex items-center gap-2 py-2 text-sm cursor-pointer" onClick={handleFeature}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
-            <path d="M24 2L29.39 16.26L44 18.18L33 29.24L35.82 44L24 37L12.18 44L15 29.24L4 18.18L18.61 16.26L24 2Z" stroke="black" strokeWidth="2" fill={post.isFeatured ? "black" : "none"} />
-          </svg>
-          <span>Feature</span>
-        </div>
-      )}
-
+      {/* Feature button has been removed. Delete button logic is now separate. */}
+      
       {(isAuthor || isAdmin) && (
         <div className="flex items-center gap-2 py-2 text-sm cursor-pointer" onClick={handleDelete}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="red" width="20px" height="20px">
