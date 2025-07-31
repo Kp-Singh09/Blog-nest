@@ -65,7 +65,7 @@ export const getPosts = async (req, res) => {
 
     console.log("=> Querying the database...");
     const posts = await Post.find(query)
-      .populate("user", "username")
+      .populate("user", "username clerkUserId")
       .sort(sortObj)
       .limit(limit)
       .skip((page - 1) * limit);
