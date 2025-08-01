@@ -39,43 +39,58 @@ export const deleteComment = async (req, res) => {
   }
 
   try {
-    // 1. Find the comment and populate the post to get the post author's ID
+    // --- Start of Debugging Logs ---
+    console.log("--- Initiating Comment Deletion ---");
+    console.log("Attempting to delete comment ID:", commentId);
+    console.log("Request from Clerk User ID:", clerkUserId);
+    console.log("Clerk Session Claims:", JSON.stringify(req.auth.sessionClaims, null, 2));
+    // --- End of Debugging Logs ---
+
+    // Find the comment and its post's author
     const comment = await Comment.findById(commentId).populate({
       path: "post",
-      select: "user", // We only need the user field from the Post document
+      select: "user", // Select the 'user' field from the populated post
     });
 
     if (!comment) {
       return res.status(404).json({ message: "Comment not found." });
     }
 
-    // 2. Check if the current user is an admin
-    const role = req.auth.sessionClaims?.metadata?.role || "user";
-    if (role === "admin") {
-      await Comment.findByIdAndDelete(commentId);
-      return res.status(200).json({ message: "Comment deleted successfully by admin." });
-    }
+    // IMPORTANT: Check for the role in 'publicMetadata' which is the standard for Clerk
+    const role = req.auth.sessionClaims?.publicMetadata?.role || "user";
+    const isAdmin = role === "admin";
 
-    // 3. If not an admin, check if the current user is the post's author
+    // Find the current user in your database
     const currentUser = await User.findOne({ clerkUserId });
     if (!currentUser) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "User not found in DB." });
     }
 
-    // Convert ObjectId to string for comparison
     const postAuthorId = comment.post.user.toString();
     const currentUserId = currentUser._id.toString();
+    const isPostAuthor = postAuthorId === currentUserId;
 
-    if (postAuthorId === currentUserId) {
+    // --- Debugging Authorization Check ---
+    console.log(`Extracted Role: '${role}'. Is Admin? ${isAdmin}`);
+    console.log(`Post Author DB ID: ${postAuthorId}`);
+    console.log(`Current User DB ID: ${currentUserId}`);
+    console.log(`Is Post Author? ${isPostAuthor}`);
+    // ------------------------------------
+
+    // Check if user is authorized
+    if (isAdmin || isPostAuthor) {
       await Comment.findByIdAndDelete(commentId);
-      return res.status(200).json({ message: "Comment deleted successfully by post author." });
+      const reason = isAdmin ? "by admin" : "by post author";
+      console.log(`--- Deletion Successful (${reason}) ---`);
+      return res.status(200).json({ message: `Comment deleted successfully ${reason}.` });
     }
 
-    // 4. If neither condition is met, deny permission
+    // If neither check passed, deny access
+    console.log("--- Deletion Denied: User is not admin or post author. ---");
     return res.status(403).json({ message: "You are not authorized to delete this comment." });
-    
+
   } catch (error) {
-    console.error("Error deleting comment:", error);
-    return res.status(500).json({ message: "Something went wrong." });
+    console.error("--- Deletion Failed with Server Error ---", error);
+    return res.status(500).json({ message: "Something went wrong while deleting the comment." });
   }
 };
