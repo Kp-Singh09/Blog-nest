@@ -1,7 +1,7 @@
 import Comment from "../models/comment.model.js";
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
-import { clerkClient } from "@clerk/express/node"; // <-- THIS LINE WAS MISSING
+import { clerkClient } from "@clerk/clerk-sdk-node"; // <-- THIS LINE WAS MISSING
 
 export const getPostComments = async (req, res) => {
   const comments = await Comment.find({ post: req.params.postId })

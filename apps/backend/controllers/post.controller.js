@@ -1,6 +1,9 @@
 import ImageKit from "imagekit";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import { clerkClient } from "@clerk/clerk-sdk-node";
+
+
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -98,18 +101,19 @@ export const deletePost = async (req, res) => {
 };
 
 export const featurePost = async (req, res) => {
-  const clerkUserId = req.auth.userId;
-  if (!clerkUserId) {
+  const { userId } = req.auth;
+  if (!userId) {
     return res.status(401).json({ message: "Not authenticated!" });
-  }
-  console.log("Session Claims received on Backend:", req.auth.sessionClaims);
-  const role = req.auth.sessionClaims?.metadata?.role;
-
-  if (role !== "admin") {
-    return res.status(403).json({ message: "You are not authorized to perform this action!" });
   }
 
   try {
+    const user = await clerkClient.users.getUser(userId);
+    const role = user.publicMetadata.role;
+
+    if (role !== "admin") {
+      return res.status(403).json({ message: "You are not authorized to perform this action!" });
+    }
+
     const post = await Post.findById(req.params.id);
 
     if (!post) {
@@ -117,16 +121,14 @@ export const featurePost = async (req, res) => {
     }
 
     post.isFeatured = !post.isFeatured;
-
     await post.save();
 
     res.status(200).json({ message: `Post has been ${post.isFeatured ? "featured" : "un-featured"}.` });
   } catch (error) {
-    console.error("Error featuring post:", error);
+    console.error("Error in featurePost controller:", error);
     res.status(500).json({ message: "Something went wrong!" });
   }
 };
-
 
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IK_URL_ENDPOINT,
