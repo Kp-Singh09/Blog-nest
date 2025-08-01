@@ -100,6 +100,60 @@ export const deletePost = async (req, res) => {
   res.status(200).json("Post has been deleted");
 };
 
+export const updatePost = async (req, res) => {
+  const { userId } = req.auth;
+  const postId = req.params.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Not authenticated!" });
+  }
+
+  try {
+    const localUser = await User.findOne({ clerkUserId: userId });
+    if (!localUser) {
+      return res.status(404).json({ message: "User not found in database." });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    const clerkUser = await clerkClient.users.getUser(userId);
+    const isAdmin = clerkUser.publicMetadata.role === "admin";
+
+    // Authorization check: only author or admin can edit
+    if (post.user.toString() !== localUser._id.toString() && !isAdmin) {
+      return res.status(403).json({ message: "You are not authorized to edit this post." });
+    }
+
+    // Handle slug regeneration if title changes
+    let newSlug = post.slug;
+    if (req.body.title && req.body.title !== post.title) {
+      newSlug = req.body.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+      let existingPost = await Post.findOne({ slug: newSlug, _id: { $ne: postId } });
+      let counter = 2;
+      while (existingPost) {
+        newSlug = `${req.body.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')}-${counter}`;
+        existingPost = await Post.findOne({ slug: newSlug, _id: { $ne: postId } });
+        counter++;
+      }
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      { ...req.body, slug: newSlug },
+      { new: true } // This option returns the updated document
+    );
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Something went wrong!" });
+  }
+};
+
+
 export const featurePost = async (req, res) => {
   const { userId } = req.auth;
   if (!userId) {

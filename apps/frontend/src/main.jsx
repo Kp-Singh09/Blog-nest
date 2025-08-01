@@ -8,6 +8,7 @@ import Write from "./routes/Write.jsx";
 import LoginPage from "./routes/LoginPage.jsx";
 import RegisterPage from "./routes/RegisterPage.jsx";
 import SinglePostPage from "./routes/SinglePostPage.jsx";
+import EditPostPage from "./routes/EditPostPage.jsx"; 
 import MainLayout from "./layouts/MainLayout.jsx";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "/:slug",
         element: <SinglePostPage />,
+      },
+      {
+        path: "/edit/:slug",
+        element: <EditPostPage />,
       },
       {
         path: "/write",

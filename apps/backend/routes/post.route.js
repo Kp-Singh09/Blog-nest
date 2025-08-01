@@ -4,6 +4,7 @@ import {
   getPost,
   createPost,
   deletePost,
+  updatePost,
   uploadAuth,
   featurePost,
 } from "../controllers/post.controller.js";
@@ -16,7 +17,7 @@ router.get("/", getPosts);
 router.get("/:slug", increaseVisit, getPost);
 router.post("/", createPost);
 router.delete("/:id", deletePost);
-// UPDATE THIS LINE
+router.patch("/:id", updatePost);
 router.patch("/:id/feature", featurePost);
 
 export default router;
