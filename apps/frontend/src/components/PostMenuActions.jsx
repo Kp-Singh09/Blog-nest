@@ -10,6 +10,9 @@ const PostMenuActions = ({ post }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // ADD THIS CONSOLE LOG TO DEBUG
+  console.log("Clerk User Object in PostMenuActions:", user);
+
   const { data: savedPostsData } = useQuery({
     queryKey: ["savedPosts"],
     queryFn: async () => {

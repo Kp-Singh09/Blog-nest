@@ -102,7 +102,7 @@ export const featurePost = async (req, res) => {
   if (!clerkUserId) {
     return res.status(401).json({ message: "Not authenticated!" });
   }
-
+  console.log("Session Claims received on Backend:", req.auth.sessionClaims);
   const role = req.auth.sessionClaims?.metadata?.role;
 
   if (role !== "admin") {
