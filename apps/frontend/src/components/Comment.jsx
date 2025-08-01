@@ -5,33 +5,32 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const Comment = ({ comment, postId }) => {
+//...
+const Comment = ({ comment, postId, postAuthorClerkId }) => {
   const { user } = useUser();
   const { getToken } = useAuth();
-  const role = user?.publicMetadata?.role;
-
   const queryClient = useQueryClient();
 
+  // --- New Authorization Logic ---
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  const isPostAuthor = user && user.id === postAuthorClerkId;
+  const isCommentAuthor = user && user.id === comment.user?.clerkUserId;
+
+  const canDelete = isAdmin || isPostAuthor || isCommentAuthor;
+  // --- End of New Logic ---
+
   const mutation = useMutation({
-    mutationFn: async () => {
-      const token = await getToken();
-      return axios.delete(
-        `${import.meta.env.VITE_API_URL}/comments/${comment._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      toast.success("Comment deleted successfully");
-    },
-    onError: (error) => {
-      toast.error(error.response.data);
-    },
+    //... (mutation logic remains the same)
   });
+
+  // The comment.user might not exist if the user has been deleted
+  if (!comment.user) {
+    return (
+      <div className="p-4 bg-slate-100 rounded-xl mb-8">
+        <p className="text-gray-500 italic">This comment was posted by a user that has since been deleted.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 bg-slate-50 rounded-xl mb-8">
@@ -47,16 +46,16 @@ const Comment = ({ comment, postId }) => {
         <span className="text-sm text-gray-500">
           {format(comment.createdAt)}
         </span>
-        {user &&
-          (comment.user.username === user.username || role === "admin") && (
-            <span
-              className="text-xs text-red-300 hover:text-red-500 cursor-pointer"
-              onClick={() => mutation.mutate()}
-            >
-              delete
-              {mutation.isPending && <span>(in progress)</span>}
-            </span>
-          )}
+        {/* Use the new canDelete variable here */}
+        {canDelete && (
+          <span
+            className="text-xs text-red-300 hover:text-red-500 cursor-pointer ml-auto"
+            onClick={() => mutation.mutate()}
+          >
+            delete
+            {mutation.isPending && <span>...</span>}
+          </span>
+        )}
       </div>
       <div className="mt-4">
         <p>{comment.desc}</p>

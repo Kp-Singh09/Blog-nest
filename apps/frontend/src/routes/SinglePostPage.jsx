@@ -58,7 +58,7 @@ const SinglePostPage = () => {
           />
 
           {/* COMMENTS SECTION */}
-          <Comments postId={data._id} />
+          <Comments postId={data._id} postAuthorClerkId={data.user.clerkUserId} />
         </div>
 
         {/* SIDEBAR (RIGHT) */}

@@ -11,7 +11,8 @@ const fetchComments = async (postId) => {
   return res.data;
 };
 
-const Comments = ({ postId }) => {
+// Accept the new 'postAuthorClerkId' prop here
+const Comments = ({ postId, postAuthorClerkId }) => {
   const { user } = useUser();
   const { getToken } = useAuth();
 
@@ -52,6 +53,7 @@ const Comments = ({ postId }) => {
     };
 
     mutation.mutate(data);
+    e.target.reset();
   };
 
   return (
@@ -90,7 +92,13 @@ const Comments = ({ postId }) => {
           )}
 
           {data.map((comment) => (
-            <Comment key={comment._id} comment={comment} postId={postId} />
+            <Comment
+              key={comment._id}
+              comment={comment}
+              postId={postId}
+              // Pass the prop down to each Comment
+              postAuthorClerkId={postAuthorClerkId}
+            />
           ))}
         </>
       )}
