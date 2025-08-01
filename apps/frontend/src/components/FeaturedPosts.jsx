@@ -26,7 +26,9 @@ const FeaturedPosts = () => {
   }
 
   return (
+   <div> <h1 className="my-8 text-2xl text-gray-600">Featured Posts</h1>
     <div className="mt-8 flex flex-col lg:flex-row gap-8">
+      
       {/* First */}
       <div className="w-full lg:w-1/2 flex flex-col gap-4">
         {/* image */}
@@ -130,6 +132,7 @@ const FeaturedPosts = () => {
           </div>
         </div>}
       </div>
+    </div>
     </div>
   );
 };

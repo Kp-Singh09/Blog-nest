@@ -31,31 +31,49 @@ export const addComment = async (req, res) => {
 };
 
 export const deleteComment = async (req, res) => {
-  const clerkUserId = req.auth.userId;
-  const id = req.params.id;
+  const { userId } = req.auth;
+  const commentId = req.params.id;
 
-  if (!clerkUserId) {
-    return res.status(401).json("Not authenticated!");
+  if (!userId) {
+    return res.status(401).json({ message: "Not authenticated!" });
   }
 
-  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  try {
+    // 1. Fetch the current user's data from Clerk and our DB
+    const clerkUser = await clerkClient.users.getUser(userId);
+    const localUser = await User.findOne({ clerkUserId: userId });
 
-  if (role === "admin") {
-    await Comment.findByIdAndDelete(req.params.id);
-    return res.status(200).json("Comment has been deleted");
+    if (!localUser) {
+      return res.status(404).json({ message: "User not found in database." });
+    }
+
+    // 2. Find the comment and the post it belongs to
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+
+    const post = await Post.findById(comment.post);
+    if (!post) {
+      return res.status(404).json({ message: "Associated post not found." });
+    }
+
+    // 3. Check permissions
+    const isAdmin = clerkUser.publicMetadata.role === "admin";
+    const isPostAuthor = post.user.toString() === localUser._id.toString();
+    const isCommentAuthor = comment.user.toString() === localUser._id.toString();
+
+    // 4. If user is not authorized, deny access
+    if (!isAdmin && !isPostAuthor && !isCommentAuthor) {
+      return res.status(403).json({ message: "You are not authorized to delete this comment." });
+    }
+
+    // 5. If authorized, delete the comment
+    await Comment.findByIdAndDelete(commentId);
+    res.status(200).json({ message: "Comment has been deleted successfully." });
+    
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({ message: "Something went wrong." });
   }
-
-  // This line contained a bug (missing await)
-  const user = User.findOne({ clerkUserId }); 
-
-  const deletedComment = await Comment.findOneAndDelete({
-    _id: id,
-    user: user._id, // user._id was undefined here
-  });
-
-  if (!deletedComment) {
-    return res.status(403).json("You can delete only your comment!");
-  }
-
-  res.status(200).json("Comment deleted");
 };
