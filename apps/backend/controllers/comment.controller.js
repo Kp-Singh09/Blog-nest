@@ -39,41 +39,52 @@ export const deleteComment = async (req, res) => {
   }
 
   try {
-    // 1. Fetch the current user's data from Clerk and our DB
+    // --- Step 1: Add detailed logs ---
+    console.log("--- Starting Comment Deletion Process ---");
+    console.log(`Attempting to delete comment with ID: ${commentId} by user: ${userId}`);
+
     const clerkUser = await clerkClient.users.getUser(userId);
+    console.log("Clerk user fetched successfully.");
+
     const localUser = await User.findOne({ clerkUserId: userId });
+    console.log("Local user fetched:", localUser ? localUser._id.toString() : "Not Found");
 
     if (!localUser) {
       return res.status(404).json({ message: "User not found in database." });
     }
 
-    // 2. Find the comment and the post it belongs to
     const comment = await Comment.findById(commentId);
+    console.log("Comment to delete fetched:", comment ? comment.toObject() : "Not Found");
+
     if (!comment) {
       return res.status(404).json({ message: "Comment not found." });
     }
 
     const post = await Post.findById(comment.post);
+    console.log("Associated post fetched:", post ? post.toObject() : "Not Found");
+
     if (!post) {
       return res.status(404).json({ message: "Associated post not found." });
     }
 
-    // 3. Check permissions
+    // --- Step 2: Log values just before the check ---
+    console.log("--- Checking Permissions ---");
     const isAdmin = clerkUser.publicMetadata.role === "admin";
     const isPostAuthor = post.user.toString() === localUser._id.toString();
     const isCommentAuthor = comment.user.toString() === localUser._id.toString();
-
-    // 4. If user is not authorized, deny access
+    console.log(`Is Admin: ${isAdmin}, Is Post Author: ${isPostAuthor}, Is Comment Author: ${isCommentAuthor}`);
+    
     if (!isAdmin && !isPostAuthor && !isCommentAuthor) {
       return res.status(403).json({ message: "You are not authorized to delete this comment." });
     }
 
-    // 5. If authorized, delete the comment
+    console.log("Permissions check passed. Deleting comment...");
     await Comment.findByIdAndDelete(commentId);
     res.status(200).json({ message: "Comment has been deleted successfully." });
-    
+
   } catch (error) {
-    console.error("Error deleting comment:", error);
+    // --- Step 3: Log the specific error that caused the crash ---
+    console.error("!!! CRITICAL ERROR IN deleteComment:", error);
     res.status(500).json({ message: "Something went wrong." });
   }
 };

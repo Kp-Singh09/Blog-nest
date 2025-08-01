@@ -5,23 +5,50 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-//...
 const Comment = ({ comment, postId, postAuthorClerkId }) => {
   const { user } = useUser();
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
 
-  // --- New Authorization Logic ---
+  // --- Authorization Logic ---
   const isAdmin = user?.publicMetadata?.role === "admin";
   const isPostAuthor = user && user.id === postAuthorClerkId;
   const isCommentAuthor = user && user.id === comment.user?.clerkUserId;
 
   const canDelete = isAdmin || isPostAuthor || isCommentAuthor;
-  // --- End of New Logic ---
 
+  // --- FIX & IMPLEMENTATION: Added the complete delete mutation logic ---
   const mutation = useMutation({
-    //... (mutation logic remains the same)
+    mutationFn: async () => {
+      const token = await getToken();
+      return axios.delete(
+        `${import.meta.env.VITE_API_URL}/comments/${comment._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      toast.success("Comment has been deleted!");
+      // Refetch the comments for this post to update the UI
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+    onError: (err) => {
+      console.error("Delete comment error:", err);
+      toast.error(err.response?.data?.message || "Failed to delete comment.");
+    },
   });
+
+  // --- DEBUGGING: New handler to log the click event ---
+  const handleDelete = () => {
+    console.log(`Delete button clicked for comment ID: ${comment._id}`);
+    console.log("User has permission to delete:", canDelete);
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+        mutation.mutate();
+    }
+  };
 
   // The comment.user might not exist if the user has been deleted
   if (!comment.user) {
@@ -46,11 +73,10 @@ const Comment = ({ comment, postId, postAuthorClerkId }) => {
         <span className="text-sm text-gray-500">
           {format(comment.createdAt)}
         </span>
-        {/* Use the new canDelete variable here */}
         {canDelete && (
           <span
             className="text-xs text-red-300 hover:text-red-500 cursor-pointer ml-auto"
-            onClick={() => mutation.mutate()}
+            onClick={handleDelete}
           >
             delete
             {mutation.isPending && <span>...</span>}
