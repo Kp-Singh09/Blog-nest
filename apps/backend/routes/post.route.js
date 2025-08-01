@@ -16,6 +16,7 @@ router.get("/", getPosts);
 router.get("/:slug", increaseVisit, getPost);
 router.post("/", createPost);
 router.delete("/:id", deletePost);
-router.patch("/feature", featurePost);
+// UPDATE THIS LINE
+router.patch("/:id/feature", featurePost);
 
 export default router;

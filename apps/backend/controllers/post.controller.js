@@ -98,9 +98,35 @@ export const deletePost = async (req, res) => {
 };
 
 export const featurePost = async (req, res) => {
-  // This function will remain but will not be used by the reverted frontend.
-  res.status(403).json({ message: "Feature functionality is disabled." });
+  const clerkUserId = req.auth.userId;
+  if (!clerkUserId) {
+    return res.status(401).json({ message: "Not authenticated!" });
+  }
+
+  const role = req.auth.sessionClaims?.metadata?.role;
+
+  if (role !== "admin") {
+    return res.status(403).json({ message: "You are not authorized to perform this action!" });
+  }
+
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+
+    post.isFeatured = !post.isFeatured;
+
+    await post.save();
+
+    res.status(200).json({ message: `Post has been ${post.isFeatured ? "featured" : "un-featured"}.` });
+  } catch (error) {
+    console.error("Error featuring post:", error);
+    res.status(500).json({ message: "Something went wrong!" });
+  }
 };
+
 
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IK_URL_ENDPOINT,

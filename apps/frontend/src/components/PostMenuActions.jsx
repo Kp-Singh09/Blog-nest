@@ -61,6 +61,25 @@ const PostMenuActions = ({ post }) => {
     },
     onError: (error) => toast.error(error.response?.data?.message || "Failed to save post."),
   });
+  
+  const featureMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      return axios.patch(
+        `${import.meta.env.VITE_API_URL}/posts/${post._id}/feature`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
+    onSuccess: () => {
+      // Invalidate queries to refetch post lists
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["featuredPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["post", post.slug] });
+      toast.info(post.isFeatured ? "Post un-featured!" : "Post featured!");
+    },
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to update post."),
+  });
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -73,6 +92,11 @@ const PostMenuActions = ({ post }) => {
     saveMutation.mutate();
   };
 
+  const handleFeature = () => {
+    if (!user) return navigate("/login");
+    featureMutation.mutate();
+  };
+
   return (
     <>
       <div className="flex items-center gap-2 py-2 text-sm cursor-pointer" onClick={handleSave}>
@@ -82,7 +106,14 @@ const PostMenuActions = ({ post }) => {
         <span>Save this Post</span>
       </div>
 
-      {/* Feature button has been removed. Delete button logic is now separate. */}
+      {isAdmin && (
+        <div className="flex items-center gap-2 py-2 text-sm cursor-pointer" onClick={handleFeature}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z" stroke="black" strokeWidth="2" fill={post.isFeatured ? "black" : "none"}/>
+          </svg>
+          <span>{post.isFeatured ? "Unfeature this Post" : "Feature this Post"}</span>
+        </div>
+      )}
       
       {(isAuthor || isAdmin) && (
         <div className="flex items-center gap-2 py-2 text-sm cursor-pointer" onClick={handleDelete}>
