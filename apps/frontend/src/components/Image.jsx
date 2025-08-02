@@ -5,19 +5,6 @@ const Image = ({ src, className, w, h, alt }) => {
     return null;
   }
 
-  // If the image is the logo, use a standard <img> tag to load it from the public folder.
-  if (src === 'logo.png') {
-    return (
-      <img
-        src={`/${src}`}
-        className={className}
-        width={w}
-        height={h}
-        alt={alt || ""}
-      />
-    );
-  }
-
   // For all other images, use ImageKit.
   return (
     <IKImage

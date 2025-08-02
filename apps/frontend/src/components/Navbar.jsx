@@ -1,17 +1,19 @@
 import { useState } from "react";
-import Image from "./Image";
 import { Link } from "react-router-dom";
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import Logo from "./logo";
+
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full h-16 md:h-20 flex items-center justify-between">
+    <div className=" md:h-20 flex items-center justify-between">
       {/* LOGO */}
-      <Link to="/" className="flex items-center gap-4 text-2xl font-bold">
-        <Image src="logo.png" alt="Lama Logo" w={32} h={32} />
-        <span>lamalog</span>
+      <Link to="/" className=" flex items-center text-2xl font-bold">
+        <Logo width={128} height={150}/>
+        <span className="text-[#1E3A8A]">Blog</span>
+        <span className="text-[#1E3A8A]">Nest</span>
       </Link>
       {/* MOBILE MENU */}
       <div className="md:hidden">

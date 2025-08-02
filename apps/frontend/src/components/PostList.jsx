@@ -39,6 +39,8 @@ const PostList = () => {
   const allPosts = data?.pages?.flatMap((page) => page.posts) || [];
 
   return (
+    <div>
+    <h1 className=" mb-8 text-2xl font-bold text-gray-700">All Posts</h1>
     <InfiniteScroll
       dataLength={allPosts.length}
       next={fetchNextPage}
@@ -54,6 +56,7 @@ const PostList = () => {
         <PostListItem key={post._id} post={post} />
       ))}
     </InfiniteScroll>
+    </div>
   );
 };
 
