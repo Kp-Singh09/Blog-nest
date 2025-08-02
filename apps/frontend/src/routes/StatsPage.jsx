@@ -42,7 +42,17 @@ const PodiumStep = ({ user, position }) => {
     </div>
   );
 };
-
+const formatCategoryName = (name) => {
+    const nameMap = {
+      "development": "Dev",
+      "databases": "DB",
+      "web-design": "Design",
+      "marketing": "Marketing",
+      "seo": "SEO",
+      "general": "General"
+    };
+    return nameMap[name] || name;
+  };
 const StatsPage = () => {
   const { isPending, error, data } = useQuery({
     queryKey: ["stats"],
@@ -59,14 +69,14 @@ const StatsPage = () => {
       <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">Blog Statistics</h1>
 
       {/* Overall Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-3xl mx-auto">
         <StatsCard title="Total Posts" value={data.overall.totalPosts} />
         <StatsCard title="Total Views" value={data.overall.totalVisits} />
         <StatsCard title="Total Comments" value={data.overall.totalComments} />
       </div>
 
       {/* Top Contributors Podium */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-12">
+      <div className="bg-white p-6 rounded-xl shadow-md mb-12 w-full max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">Top Contributors</h2>
         <div className="flex justify-center items-end gap-4">
           {data.topContributors[1] && <PodiumStep user={data.topContributors[1]} position={2} />}
@@ -87,7 +97,13 @@ const StatsPage = () => {
                 ))}
               </Pie>
               <Tooltip />
-              <Legend />
+              {/* --- UPDATE THE LEGEND PROPS HERE --- */}
+              <Legend 
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                formatter={formatCategoryName}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -95,7 +111,7 @@ const StatsPage = () => {
            <h2 className="text-xl font-bold mb-4 text-gray-700">Views per Category</h2>
            <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.categoryPerformance}>
-              <XAxis dataKey="_id" />
+              <XAxis dataKey="_id" tickFormatter={formatCategoryName} />
               <YAxis />
               <Tooltip />
               <Legend />
