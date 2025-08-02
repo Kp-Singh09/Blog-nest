@@ -2,19 +2,17 @@ import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js"; 
 import User from "../models/user.model.js";
 
-// Helper function to estimate reading time
 const calculateReadingTime = (content) => {
   if (!content) return 0;
-  const text = content.replace(/<[^>]*>/g, ""); // Strip HTML tags
-  const words = text.split(/\s+/).filter(Boolean); // Split by whitespace and remove empty strings
+  const text = content.replace(/<[^>]*>/g, ""); 
+  const words = text.split(/\s+/).filter(Boolean); 
   const wordCount = words.length;
-  const wpm = 225; // Average words per minute
+  const wpm = 150; 
   return Math.ceil(wordCount / wpm);
 };
 
 export const getStats = async (req, res) => {
   try {
-    // Run all database queries in parallel for efficiency
     const [
       totalPosts,
       totalComments,
