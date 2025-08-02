@@ -1,17 +1,16 @@
 import Post from "../models/post.model.js";
-import Comment from "../models/comment.model.js";
+import Comment from "../models/comment.model.js"; 
 import User from "../models/user.model.js";
 
-
-
+// Helper function to estimate reading time
 const calculateReadingTime = (content) => {
-    if (!content) return 0;
-    const text = content.replace(/<[^>]*>/g, ""); // Strip HTML tags
-    const words = text.split(/\s+/).filter(Boolean); // Split by whitespace and remove empty strings
-    const wordCount = words.length;
-    const wpm = 225; // Average words per minute
-    return Math.ceil(wordCount / wpm);
-  };
+  if (!content) return 0;
+  const text = content.replace(/<[^>]*>/g, ""); // Strip HTML tags
+  const words = text.split(/\s+/).filter(Boolean); // Split by whitespace and remove empty strings
+  const wordCount = words.length;
+  const wpm = 225; // Average words per minute
+  return Math.ceil(wordCount / wpm);
+};
 
 export const getStats = async (req, res) => {
   try {
@@ -23,8 +22,8 @@ export const getStats = async (req, res) => {
       categoryPostCounts,
       categoryVisitCounts,
       postsByUser,
-      allPostsForReadingTime,
       commentsReceivedByUser,
+      allPostsForReadingTime,
     ] = await Promise.all([
       Post.countDocuments(),
       Comment.countDocuments(),
@@ -64,9 +63,7 @@ export const getStats = async (req, res) => {
       };
     }).sort((a, b) => b.score - a.score).slice(0, 3);
 
-    console.log("DEBUG: Posts fetched for reading time:", allPostsForReadingTime);
-
-    // --- NEW: Reading Time Calculation ---
+    // Reading Time Calculation
     const postsWithReadingTime = allPostsForReadingTime.map(post => ({
       ...post.toObject(),
       readingTime: calculateReadingTime(post.content),
@@ -79,8 +76,7 @@ export const getStats = async (req, res) => {
 
     const totalReadingTime = postsWithReadingTime.reduce((sum, post) => sum + post.readingTime, 0);
     const averageReadingTime = totalPosts > 0 ? Math.round(totalReadingTime / totalPosts) : 0;
-
-
+    
     // Format final response
     res.status(200).json({
       overall: {
@@ -91,7 +87,6 @@ export const getStats = async (req, res) => {
       topContributors,
       categoryBreakdown: categoryPostCounts,
       categoryPerformance: categoryVisitCounts,
-      // --- ADD NEW READING TIME STATS ---
       readingStats: {
         shortestRead,
         longestRead,
