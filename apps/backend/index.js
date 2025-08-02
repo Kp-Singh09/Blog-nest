@@ -4,6 +4,7 @@ import connectDB from "./lib/connectDB.js";
 import userRouter from "./routes/user.route.js";
 import postRouter from "./routes/post.route.js";
 import commentRouter from "./routes/comment.route.js";
+import statsRouter from "./routes/stats.route.js";
 import webhookRouter from "./routes/webhook.route.js";
 import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
@@ -15,6 +16,8 @@ app.use(cors({ origin: process.env.CLIENT_URL }));
 
 // 2. Webhook Router: This route is special and must come BEFORE express.json().
 app.use("/webhooks", webhookRouter);
+
+app.use("/stats", statsRouter);
 
 // 3. JSON Body Parser: This middleware is for all other API routes.
 app.use(express.json());
