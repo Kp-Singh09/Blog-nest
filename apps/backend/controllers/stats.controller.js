@@ -64,6 +64,7 @@ export const getStats = async (req, res) => {
       };
     }).sort((a, b) => b.score - a.score).slice(0, 3);
 
+    console.log("DEBUG: Posts fetched for reading time:", allPostsForReadingTime);
 
     // --- NEW: Reading Time Calculation ---
     const postsWithReadingTime = allPostsForReadingTime.map(post => ({
