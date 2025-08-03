@@ -1,12 +1,13 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import Image from "./Image";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "timeago.js";
+import Slider from "react-slick";
+import Image from "./Image";
 
-const fetchPost = async () => {
+const fetchFeaturedPosts = async () => {
   const res = await axios.get(
-    `${import.meta.env.VITE_API_URL}/posts?featured=true&limit=4&sort=newest`
+    `${import.meta.env.VITE_API_URL}/posts?featured=true&limit=5`
   );
   return res.data;
 };
@@ -14,83 +15,73 @@ const fetchPost = async () => {
 const FeaturedPosts = () => {
   const { isPending, error, data } = useQuery({
     queryKey: ["featuredPosts"],
-    queryFn: fetchPost,
+    queryFn: fetchFeaturedPosts,
   });
 
-  // if (isPending) return "loading...";
-  if (error) return "Something went wrong!" + error.message;
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    arrows: true,
+    appendDots: (dots) => (
+      <div style={{ bottom: "25px" }}>
+        <ul style={{ margin: "0px" }}> {dots} </ul>
+      </div>
+    ),
+  };
+
+  if (isPending)
+    return (
+      <div className="h-[500px] bg-slate-200 rounded-2xl animate-pulse mt-8"></div>
+    );
+  if (error) return <div>Error loading featured posts.</div>;
 
   const posts = data?.posts;
   if (!posts || posts.length === 0) {
     return null;
   }
 
-  const mainPost = posts[0];
-  const otherPosts = posts.slice(1);
-
   return (
-    <div className="mt-8 mb-10">
-      <h1 className="mb-8 text-2xl font-bold text-gray-700">Featured Posts</h1>
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* First Post (main) */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-4">
-          {mainPost.img && (
-            <Link to={mainPost.slug}>
-              <Image
-                src={mainPost.img}
-                className="rounded-3xl object-cover"
-                w="895"
-              />
-            </Link>
-          )}
-          <div className="flex items-center gap-4">
-            <h1 className="font-semibold lg:text-lg">01.</h1>
-            <Link to={`/posts?cat=${mainPost.category}`} className="text-blue-800 lg:text-lg">{mainPost.category}</Link>
-            <span className="text-gray-500">{format(mainPost.createdAt)}</span>
-          </div>
-          <Link
-            to={mainPost.slug}
-            className="text-xl lg:text-3xl font-semibold lg:font-bold"
-          >
-            {mainPost.title}
-          </Link>
-        </div>
-
-        {/* Other Posts */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-4 justify-between">
-          {otherPosts.map((post, index) => (
-            <div key={post._id} className="flex justify-between gap-4">
-              {post.img && (
-                // --- THIS DIV CONTROLS THE IMAGE SHAPE ---
-                <div className="w-1/3 aspect-[4/3]"> {/* Changed to 4/3 aspect ratio */}
-                  <Link to={post.slug}>
-                    <Image
-                      src={post.img}
-                      className="rounded-3xl object-cover w-full h-full"
-                      w="298"
-                    />
-                  </Link>
-                </div>
-              )}
-              <div className="w-2/3">
-                <div className="flex items-center gap-4 text-sm lg:text-base mb-4">
-                  <h1 className="font-semibold">
-                    {String(index + 2).padStart(2, '0')}.
-                  </h1>
-                  <Link to={`/posts?cat=${post.category}`} className="text-blue-800">{post.category}</Link>
-                  <span className="text-gray-500 text-sm">{format(post.createdAt)}</span>
-                </div>
+    <div className="mt-8">
+      <h1 className=" mb-8 text-2xl font-bold text-gray-700">Featured Posts </h1>
+      <Slider {...settings}>
+        {posts.map((post) => (
+          <div key={post._id} className="relative h-[500px] rounded-2xl overflow-hidden">
+            <Image
+              src={post.img}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+            {/* --- UPDATED TEXT CONTAINER --- */}
+            <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white w-full flex justify-between items-end">
+              <div>
                 <Link
-                  to={post.slug}
-                  className="text-base sm:text-lg md:text-2xl lg:text-xl xl:text-2xl font-medium"
+                  to={`/posts?cat=${post.category}`}
+                  className="bg-blue-600 text-xs font-semibold px-3 py-1 rounded-full hover:bg-blue-500 transition-colors"
                 >
-                  {post.title}
+                  {post.category}
                 </Link>
+                <Link to={`/${post.slug}`}>
+                  <h2 className="text-2xl md:text-4xl font-bold mt-4 hover:underline">
+                    {post.title}
+                  </h2>
+                </Link>
+                <p className="mt-2 text-gray-200 hidden md:block max-w-xl">
+                  {post.desc}
+                </p>
               </div>
+              <Link to={`/${post.slug}`} className="shrink-0 bg-white text-black font-semibold py-2 px-5 rounded-lg hover:bg-gray-200 transition-colors">
+                Read More
+              </Link>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        ))}
+      </Slider>
     </div>
   );
 };

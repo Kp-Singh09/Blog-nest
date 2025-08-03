@@ -1,6 +1,11 @@
+@import "slick-carousel/slick/slick.css"; 
+@import "slick-carousel/slick/slick-theme.css";
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 body {
   background-color: #e6e6ff;
@@ -21,4 +26,40 @@ body {
 }
 .ql-editor{
   border: none !important;
+}
+
+.slick-arrow.slick-prev,
+.slick-arrow.slick-next {
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+}
+
+.slick-arrow.slick-prev:hover,
+.slick-arrow.slick-next:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.slick-prev {
+    left: 1rem;
+}
+
+.slick-next {
+    right: 1rem;
+}
+
+.slick-dots li button:before {
+  font-size: 12px;
+  color: white;
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
 }
