@@ -14,6 +14,44 @@ import {
   YAxis,
 } from "recharts";
 
+
+// --- NEW SKELETON COMPONENT ---
+const StatsPageSkeleton = () => {
+  return (
+    <div className="py-8 px-4 md:px-0">
+      {/* Title Skeleton */}
+      <div className="h-10 w-1/3 bg-slate-200 rounded-lg mx-auto mb-10 animate-pulse"></div>
+
+      {/* Overall Stats Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="h-28 bg-white rounded-xl animate-pulse"></div>
+        <div className="h-28 bg-white rounded-xl animate-pulse"></div>
+        <div className="h-28 bg-white rounded-xl animate-pulse"></div>
+      </div>
+
+      {/* Podium Skeleton */}
+      <div className="bg-slate-100 p-6 rounded-xl shadow-md mb-12 w-full max-w-3xl mx-auto animate-pulse">
+        <div className="h-8 w-1/2 bg-white rounded-lg mx-auto mb-6"></div>
+        <div className="flex justify-center items-end gap-4 h-48">
+            <div className="w-24 h-24 bg-white rounded-t-lg"></div>
+            <div className="w-24 h-32 bg-white rounded-t-lg"></div>
+            <div className="w-24 h-20 bg-white rounded-t-lg"></div>
+        </div>
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        <div className="h-[380px] bg-white rounded-xl animate-pulse"></div>
+        <div className="h-[380px] bg-white rounded-xl animate-pulse"></div>
+      </div>
+
+      {/* Reading Time Skeleton */}
+      <div className="h-40 bg-white rounded-xl animate-pulse"></div>
+    </div>
+  );
+};
+
+
 const fetchStats = async () => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/stats`);
   return res.data;
@@ -36,33 +74,37 @@ const PodiumStep = ({ user, position }) => {
     <div className={`flex flex-col items-center ${styles[position].order}`}>
       <div className="font-bold text-2xl">{position}</div>
       <div className={`w-24 ${styles[position].height} ${styles[position].bg} rounded-t-lg`}></div>
-      <img src={user.img} alt={user.username} className="w-16 h-16 rounded-full -mt-8 border-4 border-white"/>
+      <img src={user.img} alt={user.username} className="w-16 h-16 rounded-full -mt-8 border-4 border-slate-100"/>
       <p className="font-semibold mt-2">{user.username}</p>
       <p className="text-sm text-gray-500">{Math.round(user.score)} pts</p>
     </div>
   );
 };
-const formatCategoryName = (name) => {
-    const nameMap = {
-      "development": "Dev",
-      "databases": "DB",
-      "web-design": "Design",
-      "marketing": "Marketing",
-      "seo": "SEO",
-      "general": "General"
-    };
-    return nameMap[name] || name;
-  };
+
 const StatsPage = () => {
   const { isPending, error, data } = useQuery({
     queryKey: ["stats"],
     queryFn: fetchStats,
   });
 
-  if (isPending) return <div className="text-center py-10">Loading Statistics...</div>;
+  const formatCategoryName = (name) => {
+    const nameMap = {
+      "development": "dev",
+      "databases": "db",
+      "web-design": "design",
+      "marketing": "mktg",
+      "seo": "seo",
+      "general": "gen"
+    };
+    return nameMap[name] || name;
+  };
+
+  // --- RENDER THE SKELETON COMPONENT WHILE PENDING ---
+  if (isPending) return <StatsPageSkeleton />;
+  
   if (error) return <div className="text-center py-10 text-red-500">Failed to load statistics: {error.message}</div>;
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+  const COLORS = ["#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD"];
 
   return (
     <div className="py-8 px-4 md:px-0">

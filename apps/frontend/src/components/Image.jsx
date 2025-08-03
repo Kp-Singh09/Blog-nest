@@ -5,7 +5,22 @@ const Image = ({ src, className, w, h, alt }) => {
     return null;
   }
 
-  // For all other images, use ImageKit.
+  // --- NEW LOGIC: Check if the src is a full URL ---
+  if (src.startsWith("http")) {
+    // If it's a full URL (like from Clerk), use a standard <img> tag
+    return (
+      <img
+        src={src}
+        className={className}
+        width={w}
+        height={h}
+        alt={alt || "image"}
+        loading="lazy"
+      />
+    );
+  }
+
+  // Otherwise, use the ImageKit component for internal uploads
   return (
     <IKImage
       urlEndpoint={import.meta.env.VITE_IK_URL_ENDPOINT}

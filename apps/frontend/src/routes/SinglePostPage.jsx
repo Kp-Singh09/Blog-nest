@@ -23,9 +23,15 @@ const SinglePostPage = () => {
   if (isPending) return "loading...";
   if (error) return "Something went wrong!" + error.message;
   if (!data) return "Post not found!";
+  const authorImage = data.user.img || "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
+  
+  console.log("Author data from backend:", data.user);
+  console.log("Final authorImage variable:", authorImage);
 
+  
+  
   return (
-    <div className="flex flex-col gap-8 mt-4">
+    <div className="pt-10 flex flex-col gap-8 mt-4">
       <div className="flex flex-col lg:flex-row gap-12 justify-between">
         {/* MAIN CONTENT (LEFT) */}
         <div className="w-full lg:w-2/3 flex flex-col gap-6">
@@ -67,19 +73,17 @@ const SinglePostPage = () => {
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h1 className="mb-4 text-lg font-semibold text-gray-700">Author</h1>
             <div className="flex flex-col gap-4 items-center">
-              {data.user.img && (
-                <Image
-                  src={data.user.img}
-                  className="w-16 h-16 rounded-full object-cover"
-                  w="64"
-                  h="64"
-                />
-              )}
+                 <Image
+                 src={authorImage}
+                 className="w-16 h-16 rounded-full object-cover"
+                 w="64"
+                 h="64"
+               />
               <Link className="text-blue-800 font-semibold">
                 {data.user.username}
               </Link>
               <p className="text-sm text-gray-500 text-center">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              A full-stack developer passionate about building clean, efficient applications and sharing insights with the tech community.
               </p>
             </div>
           </div>
