@@ -9,8 +9,10 @@ const PostListItem = ({ post }) => {
       {/* image */}
       {post.img && (
         <div className="md:hidden xl:block xl:w-1/3">
+        <Link to={`/${post.slug}`}>
           <Image src={post.img} className="rounded-2xl object-cover" w="735" />
-        </div>
+        </Link>
+      </div>
       )}
       {/* details */}
       <div className="flex flex-col gap-4 xl:w-2/3">

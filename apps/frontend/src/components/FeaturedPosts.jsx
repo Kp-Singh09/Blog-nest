@@ -17,7 +17,7 @@ const FeaturedPosts = () => {
     queryFn: fetchPost,
   });
 
-  if (isPending) return "loading...";
+  // if (isPending) return "loading...";
   if (error) return "Something went wrong!" + error.message;
 
   const posts = data?.posts;

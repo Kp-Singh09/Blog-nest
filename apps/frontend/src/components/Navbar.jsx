@@ -8,7 +8,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="pt-5 mb-5 md:h-20 flex items-center justify-between">
+    <div className="pl-4 pr-10 pt-6 mb-5 md:h-20 flex items-center justify-between">
       {/* LOGO */}
       <Link to="/" className=" flex items-center text-2xl font-bold">
         <Logo width={128} height={150}/>
