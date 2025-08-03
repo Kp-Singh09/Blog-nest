@@ -29,7 +29,7 @@ const FeaturedPosts = () => {
   const otherPosts = posts.slice(1);
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 mb-10">
       <h1 className="mb-8 text-2xl font-bold text-gray-700">Featured Posts</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* First Post (main) */}

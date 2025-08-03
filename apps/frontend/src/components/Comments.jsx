@@ -1,26 +1,19 @@
 import axios from "axios";
 import Comment from "./Comment";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { toast } from "react-toastify";
 
-const fetchComments = async (postId) => {
-  const res = await axios.get(
-    `${import.meta.env.VITE_API_URL}/comments/${postId}`
-  );
-  return res.data;
-};
-
-// Accept the new 'postAuthorClerkId' prop here
-const Comments = ({ postId, postAuthorClerkId }) => {
+// This component is now simplified to handle either the form or the list
+const Comments = ({
+  postId,
+  postAuthorClerkId,
+  showForm = true,
+  showList = true,
+  commentsData, // Accept comments data as a prop
+}) => {
   const { user } = useUser();
   const { getToken } = useAuth();
-
-  const { isPending, error, data } = useQuery({
-    queryKey: ["comments", postId],
-    queryFn: () => fetchComments(postId),
-  });
-
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -47,37 +40,38 @@ const Comments = ({ postId, postAuthorClerkId }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const desc = formData.get("desc");
 
-    const data = {
-      desc: formData.get("desc"),
-    };
+    if (!desc) return; // Prevent submitting empty comments
 
-    mutation.mutate(data);
+    mutation.mutate({ desc });
     e.target.reset();
   };
 
   return (
-    <div className="flex flex-col gap-8 lg:w-3/5 mb-12">
-      <h1 className="text-xl text-gray-500 underline">Comments</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center justify-between gap-8 w-full"
-      >
-        <textarea
-          name="desc"
-          placeholder="Write a comment..."
-          className="w-full p-4 rounded-xl"
-        />
-        <button className="bg-blue-800 px-4 py-3 text-white font-medium rounded-xl">
-          Send
-        </button>
-      </form>
-      {isPending ? (
-        "Loading..."
-      ) : error ? (
-        "Error loading comments!"
-      ) : (
-        <>
+    <div className="flex flex-col gap-6">
+      {/* --- RENDER THE FORM --- */}
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row items-stretch gap-4 w-full"
+        >
+          <textarea
+            name="desc"
+            placeholder="Write a comment..."
+            className="w-full p-3 rounded-xl border border-gray-200 resize-none bg-slate-100"
+            rows={2}
+          />
+          <button className="bg-blue-800 px-4 py-2 text-white font-medium rounded-xl h-full">
+            Send
+          </button>
+        </form>
+      )}
+
+      {/* --- RENDER THE LIST --- */}
+      {showList && (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Comments</h2>
           {mutation.isPending && (
             <Comment
               comment={{
@@ -90,17 +84,15 @@ const Comments = ({ postId, postAuthorClerkId }) => {
               }}
             />
           )}
-
-          {data.map((comment) => (
+          {commentsData?.map((comment) => (
             <Comment
               key={comment._id}
               comment={comment}
               postId={postId}
-              // Pass the prop down to each Comment
               postAuthorClerkId={postAuthorClerkId}
             />
           ))}
-        </>
+        </div>
       )}
     </div>
   );

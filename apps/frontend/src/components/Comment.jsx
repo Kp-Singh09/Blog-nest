@@ -53,14 +53,14 @@ const Comment = ({ comment, postId, postAuthorClerkId }) => {
   // The comment.user might not exist if the user has been deleted
   if (!comment.user) {
     return (
-      <div className="p-4 bg-slate-100 rounded-xl mb-8">
+      <div className="p-4 bg-slate-400 rounded-xl mb-8">
         <p className="text-gray-500 italic">This comment was posted by a user that has since been deleted.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 bg-slate-50 rounded-xl mb-8">
+    <div className="p-4 bg-white rounded-xl mb-8">
       <div className="flex items-center gap-4">
         {comment.user.img && (
           <Image
