@@ -4,6 +4,23 @@ import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 
+// --- Skeleton Component with matching responsive classes ---
+const PostListItemSkeleton = () => (
+  <div className="flex flex-col md:flex-row gap-8 mb-12 animate-pulse">
+    {/* Image Skeleton */}
+    <div className="w-full md:w-1/3 aspect-[4/3] bg-white rounded-2xl shrink-0"></div>
+    {/* Details Skeleton */}
+    <div className="flex-1 flex flex-col gap-4">
+      <div className="h-8 bg-white rounded-lg"></div>
+      <div className="h-4 w-1/2 bg-white rounded-lg"></div>
+      <div className="h-16 bg-white rounded-lg"></div>
+      <div className="h-4 w-1/4 bg-white rounded-lg"></div>
+    </div>
+  </div>
+);
+
+
+
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
 
@@ -13,7 +30,6 @@ const fetchPosts = async (pageParam, searchParams) => {
   return res.data;
 };
 
-// --- NEW: Helper function to generate the title ---
 const generateTitle = (searchParams) => {
   const category = searchParams.get("cat");
   const sort = searchParams.get("sort");
@@ -66,26 +82,37 @@ const PostList = () => {
     queryKey: ["posts", searchParams.toString()],
     queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam, searchParams),
     initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) =>
-      lastPage.hasMore ? pages.length + 1 : undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? (data?.pages.length || 0) + 1 : undefined,
   });
-
-  if (isFetching) return "Loading...";
 
   if (error) return "Something went wrong!";
 
   const allPosts = data?.pages?.flatMap((page) => page.posts) || [];
-  const title = generateTitle(searchParams); // Generate the dynamic title
+  const title = generateTitle(searchParams);
+
+  if (isFetching && allPosts.length === 0) {
+    return (
+      <div>
+        <h1 className="mb-8 text-2xl font-bold text-gray-700">{title}</h1>
+        <div>
+          <PostListItemSkeleton />
+          <PostListItemSkeleton />
+          <PostListItemSkeleton />
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div>
-      {/* --- USE THE DYNAMIC TITLE HERE --- */}
       <h1 className=" mb-8 text-2xl font-bold text-gray-700">{title}</h1>
       <InfiniteScroll
         dataLength={allPosts.length}
         next={fetchNextPage}
         hasMore={!!hasNextPage}
-        loader={<h4>Loading more posts...</h4>}
+        loader={<PostListItemSkeleton />}
         endMessage={
           <p style={{ textAlign: "center" }}>
             <b>All posts loaded!</b>
