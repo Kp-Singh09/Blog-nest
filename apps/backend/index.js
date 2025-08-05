@@ -10,7 +10,19 @@ import cors from "cors";
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+// --- CRITICAL FIX FOR CORS ---
+const clientUrl = process.env.CLIENT_URL;
+
+// Add a log to check the environment variable during deployment
+console.log("CLIENT_URL for CORS:", clientUrl);
+
+if (!clientUrl) {
+  console.error("FATAL ERROR: CLIENT_URL is not defined.");
+  // Optionally, you can prevent the app from starting if the URL is missing
+  // process.exit(1); 
+}
+
+app.use(cors({ origin: clientUrl }));
 
 app.use("/webhooks", webhookRouter);
 app.use("/stats", statsRouter);
