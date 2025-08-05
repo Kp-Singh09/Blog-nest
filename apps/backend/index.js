@@ -10,8 +10,6 @@ import cors from "cors";
 
 const app = express();
 
-connectDB(); // Connect to the database when the function starts
-
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
 app.use("/webhooks", webhookRouter);
@@ -31,11 +29,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-// REMOVE THIS
-// app.listen(3000, () => {
-//   connectDB();
-//   console.log("Server is running!");
-// });
-
-// ADD THIS FOR VERCEL
-export default app;
+app.listen(3000, () => {
+  connectDB();
+  console.log("Server is running!");
+});
