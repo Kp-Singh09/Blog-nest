@@ -8,11 +8,11 @@ const PostListItem = ({ post }) => {
     <div className="flex flex-col xl:flex-row gap-8 mb-12">
       {/* --- IMAGE (now visible on xl screens and up) --- */}
       {post.img && (
-        <div className="w-full xl:w-1/3 aspect-[4/3] shrink-0">
-          <Link to={`/${post.slug}`}>
-            <Image src={post.img} className="rounded-2xl object-cover w-full h-full" />
-          </Link>
-        </div>
+        <div className="w-full md:w-1/3 aspect-[4/3] shrink-0">
+        <Link to={`/${post.slug}`}>
+          <Image src={post.img} className="rounded-2xl object-cover w-full h-full" />
+        </Link>
+      </div>
       )}
       {/* details */}
       <div className="flex flex-col gap-4 xl:w-2/3">

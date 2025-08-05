@@ -4,12 +4,9 @@ import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from "react-router-dom";
 
-// --- Skeleton Component with matching responsive classes ---
-const PostListItemSkeleton = () => (
+export const PostListItemSkeleton = () => (
   <div className="flex flex-col md:flex-row gap-8 mb-12 animate-pulse">
-    {/* Image Skeleton */}
     <div className="w-full md:w-1/3 aspect-[4/3] bg-white rounded-2xl shrink-0"></div>
-    {/* Details Skeleton */}
     <div className="flex-1 flex flex-col gap-4">
       <div className="h-8 bg-white rounded-lg"></div>
       <div className="h-4 w-1/2 bg-white rounded-lg"></div>
@@ -18,8 +15,6 @@ const PostListItemSkeleton = () => (
     </div>
   </div>
 );
-
-
 
 const fetchPosts = async (pageParam, searchParams) => {
   const searchParamsObj = Object.fromEntries([...searchParams]);
@@ -50,7 +45,7 @@ const generateTitle = (searchParams) => {
       case "discover":
         return "The Rabbit Hole";
       case "picks":
-         return "Editor's Picks";
+        return "Editor's Picks";
       case "oldest":
         return "Oldest Posts";
       default:
@@ -82,8 +77,9 @@ const PostList = () => {
     queryKey: ["posts", searchParams.toString()],
     queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam, searchParams),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasMore ? (data?.pages.length || 0) + 1 : undefined,
+    // --- FIX: Corrected the typo in this property name ---
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length + 1 : undefined,
   });
 
   if (error) return "Something went wrong!";
@@ -103,7 +99,6 @@ const PostList = () => {
       </div>
     );
   }
-
 
   return (
     <div>

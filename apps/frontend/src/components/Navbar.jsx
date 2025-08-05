@@ -62,6 +62,7 @@ const Navbar = () => {
         <Link to="/posts?sort=popular">Most Popular</Link>
         <Link to="/stats">Stats</Link>
         <Link to="/about">About</Link>
+        <Link to="/saved">Saved</Link> 
         <SignedOut>
           <Link to="/login">
             <button className="py-2 px-4 rounded-3xl bg-blue-800 text-white">
@@ -70,24 +71,7 @@ const Navbar = () => {
           </Link>
         </SignedOut>
         <SignedIn>
-          <UserButton 
-            afterSignOutUrl="/"
-            userProfileMode="navigation"
-            userProfileUrl="/user-profile"
-            appearance={{
-              elements: {
-                userButtonPopoverCard: "w-48",
-              },
-            }}
-            userProfileProps={{
-              additionalMenuItems: [
-                {
-                  label: "Saved Posts",
-                  url: "/saved",
-                },
-              ],
-            }}
-          />
+          <UserButton afterSignOutUrl="/" />
         </SignedIn>
       </div>
     </div>
