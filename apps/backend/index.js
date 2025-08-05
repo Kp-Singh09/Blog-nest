@@ -22,7 +22,20 @@ if (!clientUrl) {
   // process.exit(1); 
 }
 
-app.use(cors({ origin: clientUrl }));
+const allowedOrigins = [clientUrl?.replace(/\/$/, "")]; // Remove trailing slash if present
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use("/webhooks", webhookRouter);
 app.use("/stats", statsRouter);
