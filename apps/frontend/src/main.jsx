@@ -9,6 +9,7 @@ import LoginPage from "./routes/LoginPage.jsx";
 import RegisterPage from "./routes/RegisterPage.jsx";
 import AboutPage from "./routes/AboutPage.jsx";
 import StatsPage from "./routes/StatsPage.jsx";
+import SavedPostsPage from "./routes/SavedPostsPage.jsx";
 import SinglePostPage from "./routes/SinglePostPage.jsx";
 import EditPostPage from "./routes/EditPostPage.jsx"; 
 import MainLayout from "./layouts/MainLayout.jsx";
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "/:slug",
         element: <SinglePostPage />,
+      },
+      {
+        path: "/saved", 
+        element: <SavedPostsPage />,
       },
       {
         path: "/edit/:slug",

@@ -12,8 +12,7 @@ const Navbar = () => {
       {/* LOGO */}
       <Link to="/" className=" flex items-center text-2xl font-bold">
         <Logo width={128} height={150}/>
-        <span className="text-[#1E3A8A]">Blog</span>
-        <span className="text-[#1E3A8A]">Nest</span>
+        <span className="text-[#1E3A8A]">BlogNest</span>
       </Link>
       {/* MOBILE MENU */}
       <div className="md:hidden">
@@ -22,8 +21,6 @@ const Navbar = () => {
           className="cursor-pointer text-4xl"
           onClick={() => setOpen((prev) => !prev)}
         >
-          {/* Change Hamburger Icon */}
-          {/* {open ? "X" : "☰"} */}
           <div className="flex flex-col gap-[5.4px]">
             <div
               className={`h-[3px] rounded-md w-6 bg-black origin-left transition-all ease-in-out ${
@@ -50,7 +47,7 @@ const Navbar = () => {
         >
           <Link to="/" onClick={()=>setOpen(false)}>Home</Link>
           <Link to="/posts?sort=popular" onClick={()=>setOpen(false)}>Most Popular</Link>
-          <Link to="/stats">Stats</Link> 
+          <Link to="/stats" onClick={()=>setOpen(false)}>Stats</Link> 
           <Link to="/about" onClick={()=>setOpen(false)}>About</Link>
           <Link to="/login" onClick={()=>setOpen(false)}>
             <button className="py-2 px-4 rounded-3xl bg-blue-800 text-white">
@@ -73,7 +70,24 @@ const Navbar = () => {
           </Link>
         </SignedOut>
         <SignedIn>
-          <UserButton />
+          <UserButton 
+            afterSignOutUrl="/"
+            userProfileMode="navigation"
+            userProfileUrl="/user-profile"
+            appearance={{
+              elements: {
+                userButtonPopoverCard: "w-48",
+              },
+            }}
+            userProfileProps={{
+              additionalMenuItems: [
+                {
+                  label: "Saved Posts",
+                  url: "/saved",
+                },
+              ],
+            }}
+          />
         </SignedIn>
       </div>
     </div>

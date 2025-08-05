@@ -25,7 +25,7 @@ const FeaturedPosts = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 10000,
     arrows: true,
     appendDots: (dots) => (
       <div style={{ bottom: "25px" }}>
@@ -34,10 +34,25 @@ const FeaturedPosts = () => {
     ),
   };
 
-  if (isPending)
+  // --- UPDATED, MORE DETAILED SKELETON LOADER ---
+  if (isPending) {
     return (
-      <div className="h-[500px] bg-slate-200 rounded-2xl animate-pulse mt-8"></div>
+      <div className="mt-8">
+        
+        <div className="relative h-[500px] bg-white rounded-2xl animate-pulse overflow-hidden">
+          <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full flex justify-between items-end">
+            <div className="w-2/3 space-y-4">
+              <div className="h-5 w-1/4 bg-slate-400 rounded"></div>
+              <div className="h-8 w-3/4 bg-slate-400 rounded"></div>
+              <div className="h-5 w-full bg-slate-400 rounded"></div>
+            </div>
+            <div className="h-12 w-28 bg-slate-400 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
     );
+  }
+
   if (error) return <div>Error loading featured posts.</div>;
 
   const posts = data?.posts;
@@ -57,7 +72,6 @@ const FeaturedPosts = () => {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
-            {/* --- UPDATED TEXT CONTAINER --- */}
             <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white w-full flex justify-between items-end">
               <div>
                 <Link
@@ -75,7 +89,10 @@ const FeaturedPosts = () => {
                   {post.desc}
                 </p>
               </div>
-              <Link to={`/${post.slug}`} className="shrink-0 bg-white text-black font-semibold py-2 px-5 rounded-lg hover:bg-gray-200 transition-colors">
+              <Link
+                to={`/${post.slug}`}
+                className="shrink-0 bg-white text-black font-semibold py-2 px-5 rounded-lg hover:bg-gray-200 transition-colors"
+              >
                 Read More
               </Link>
             </div>
