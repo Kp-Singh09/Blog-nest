@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --exec \"node --env-file=.env index.js\"",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "node index.js"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
