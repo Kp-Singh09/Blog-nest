@@ -6,7 +6,7 @@
         "use": "@vercel/node"
       },
       {
-        "src": "apps/frontend/vite.config.js",
+        "src": "apps/frontend/package.json",
         "use": "@vercel/static-build",
         "config": {
           "distDir": "dist"
@@ -20,7 +20,7 @@
       },
       {
         "source": "/(.*)",
-        "destination": "/apps/frontend/index.html"
+        "destination": "/apps/frontend/dist/index.html"
       }
     ]
   }
